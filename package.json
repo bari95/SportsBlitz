@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next",
-    "build": "next build",
+    "build": "vercel build",
     "start": "next start",
     "type-check": "tsc"
   },
