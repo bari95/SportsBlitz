@@ -1,9 +1,7 @@
 import React, { ReactNode } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import SingleCommentUI from './commentUI/SingleCommentUI';
-import { comment } from '../utils/comments/comments';
-import CommentBar from './commentUI/CommentBar';
+import CommentsContainer from './commentUI/CommentContainer'
 
 type Props = {
   children?: ReactNode
@@ -27,10 +25,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
     {children} {
       <div>
       
-     <SingleCommentUI comment={new comment("Bari Kaneno","Jumamosi tulivu kabisa","2hrs ago")}/>
-     <SingleCommentUI comment={new comment("Juma Mbishi","AAAH, wapi wewe","10hrs ago")}/>
-     <SingleCommentUI comment={new comment("Mwajuma Yanga","yanga hatoboi, subirini muone... benchika lazima ...","3s ago")}/>
-     <CommentBar onTextChange={()=>{}} onPhotoChange={()=>{}}/>
+    <CommentsContainer />
      
       
       </div>

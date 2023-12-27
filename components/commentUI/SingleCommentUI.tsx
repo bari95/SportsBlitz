@@ -2,24 +2,28 @@
 import { useState } from "react";
 import Image from "next/image";
 import {IoIosArrowRoundBack} from 'react-icons/io'
-import CommentBar from "./CommentBar";
+import CommentBar from "./commentInput/CommentBar";
 
 
 
 
 
 import { comment,commentDataStructure } from "../../utils/comments/comments";
+import { reply } from "../../utils/comments/replies";
 
 interface Props{
-   comment:commentDataStructure | null
+   comment:commentDataStructure | null,
+   showID:(id:string)=>void,
+   type:string,
+   url:string | null
  }
 
 export default function SingleCommentUI(props:Props){
    
 
      const [resource,setResource]=useState({
-                                            type:'text',
-                                            replies:[new comment("Perfect Nkosi","good picture","20 minutes ago"),new comment("Juma Mgunda","Simba is better team","10s ago")],
+                                       
+                                            replies:[new reply("Perfect Nkosi","good picture","20 minutes ago"),new reply("Juma Mgunda","Simba is better team","10s ago")],
                                             likes:0,
                                             showComments:false,
                                           });
@@ -27,13 +31,15 @@ export default function SingleCommentUI(props:Props){
    const renderComment=()=>{
       const {comment}=props;
 
-      if(resource.type=="text"){
+      if(props.type=="text"){
          return (
-        <div>
+        <div key={comment.id}>
             <div style={styles.text}>
               <span> {comment.commentor} </span>
               <span> {comment.text} </span>
+              <span style={{alignSelf:"flex-end"}}>options </span>
               <span> {comment.time} </span>
+              <span style={{alignSelf:"flex-end",marginRight:20}}>options </span>
             </div>
         
            <div style={styles.react}>
@@ -44,19 +50,20 @@ export default function SingleCommentUI(props:Props){
         </div>
          )
       }
-      if(resource.type == "image"){
+      if(props.type == "image" && props.url !== null){
          return (
-            <div>
+            <div key={comment.id}>
             <div style={styles.text}>
               
             <h4>{comment.commentor}</h4>
               
             <span>{comment.text}</span>
+            <button onClick={sendID} style={{alignSelf:"flex-end",marginRight:20}}>options </button>
             <Image
                priority
                alt="dar es salaam"
 
-               src="/images/advert.jpg" 
+               src={props.url}
                sizes="100vw" 
                width={300}
                height={300}
@@ -64,6 +71,7 @@ export default function SingleCommentUI(props:Props){
               />
             
            <span> {comment.time}</span>
+           
         </div>
         
         <div style={styles.react}>
@@ -104,7 +112,7 @@ export default function SingleCommentUI(props:Props){
 
                {
                   resource.replies.map((reply :commentDataStructure) =>(
-                     <div key={reply.id}>
+                     <div key={reply.id + `${reply.commentor}`}>
                      <div style={styles.text}>
                      <span> {reply.commentor} </span>
                      <span> {reply.text} </span>
@@ -116,7 +124,7 @@ export default function SingleCommentUI(props:Props){
                         likeButton();
                      }}>Like</button>
                      <button>reply</button>
-                     <button>share</button>
+                     
                  </div>
                  
                  </div>
@@ -143,7 +151,12 @@ export default function SingleCommentUI(props:Props){
            )
       }
    }
-
+   
+   const sendID =()=>{
+   let id=props.comment.id;
+      props.showID(id);
+      console.log("id sent",id);
+   }
 
  return (
     
@@ -155,6 +168,10 @@ export default function SingleCommentUI(props:Props){
  )
 
 }
+
+ SingleCommentUI.defaultProps= {
+     url:null,
+ }
 
 const styles={
     commentContainer:{
@@ -172,7 +189,7 @@ const styles={
         display:"flex",
         flexDirection:"column",
         width:"100%",
-        padding:10
+        padding:10,
      },
      react:{
         display:"flex",
