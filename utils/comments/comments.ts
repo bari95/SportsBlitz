@@ -8,16 +8,19 @@ export function comment(commentor:string,text:string,time:string){
     this.id=uuidv4();
     this.commentor=commentor;
     this.replies=[];
+    this.addReplies=addReplies
     this.deleteReply=deleteReply
     this.signature="comment";
+    this.likes=0;
 }
 
 export interface commentDataStructure {
     text:string,
     time:string,
     id:string,
-    commentor:string
-    replies:string[]
+    commentor:string,
+    replies:commentDataStructure[],
+    likes:number
 }
 
 function deleteReply(text:string){
@@ -34,9 +37,9 @@ function deleteReply(text:string){
     }
 
 
-export function addReplies(comment,name:string,text:string,time:string){
+export function addReplies(name:string,text:string,time:string){
     let newRep=new reply(name,text,time)
-    comment.replies.push(newRep);   
+    this.replies.push(newRep);   
 }
 
 export function showReplies(comment){
@@ -44,5 +47,6 @@ export function showReplies(comment){
     for(let reply of replies){
         console.log(reply);
     }
+
   }
 

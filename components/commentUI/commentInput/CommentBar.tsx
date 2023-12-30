@@ -8,18 +8,25 @@ import PhotoComment from "./PhotoComment";
 interface Props {
     onTextChange:(text:string) => void,
     onPhotoChange:(photo:string) => void,
+    sendTextReplyReceived:(text:string)=>void,
+    type:string,
+    
 }
 
-export default function CommentBar ({onTextChange,onPhotoChange}){
+export default function CommentBar ({onTextChange,onPhotoChange,sendTextReplyReceived,type}){
 
     const imageInputRef= useRef <HTMLInputElement> (null)
 
-    const [photo,setPhoto]= useState <File | null > (null);
+    const [photo,setPhoto]= useState("");
 
-    const handleTextChange = (str:string) => {
-      
+    const handleTextChange = (str:string) => { 
         onTextChange(str);
     }
+    
+    const handleTextReplyReceived=(text:string)=>{
+        sendTextReplyReceived(text)
+    }
+
 
     const handleImageInput=()=>{
         if(imageInputRef.current){
@@ -27,20 +34,20 @@ export default function CommentBar ({onTextChange,onPhotoChange}){
         }
     }
 
-    const handlePhotoChange = (event:ChangeEvent<HTMLInputElement>) => {
-        const selectedPhoto = event.target.files?.[0];
-        setPhoto(selectedPhoto);
-        if(selectedPhoto){
-            onPhotoChange(selectedPhoto);
-            console.log(selectedPhoto);
+    const handlePhotoChange = (src:string) => {
+    
+        setPhoto(src);
+        if(src){
+            onPhotoChange(src);
+            console.log(src);
         }
     }
 
     return (
        <div style={styles.inputField}>
-            
-              <TextComment onTextChangeC={handleTextChange} />
-                 <PhotoComment onPhotoChangeC={handlePhotoChange}/>
+        
+              <PhotoComment onPhotoChangeC={handlePhotoChange}/>
+              <TextComment type={type} sendTextReply={handleTextReplyReceived} onTextChangeC={handleTextChange} />
             
         </div>
     )
@@ -51,9 +58,13 @@ const styles = {
       inputField:{
 
         display:"flex",
-            gap:30,
-            justifyContent:"flex-end",
-
+            gap:10,
+            paddingTop:10,
+            paddingBottom:6,
+           // width:"100%",
+            paddingLeft:100,
+            justifyContent:"center",
             borderRadius:20,
+            backgroundColor:"rgba(0,10,10,0.1)"
       }
 } as { [key :string] : React.CSSProperties }

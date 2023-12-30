@@ -9,7 +9,7 @@ type Props = {
 }
   
 const Layout = ({ children, title = 'This is the default title' }: Props) => (
-  <div>
+  <div style={styles.layout}>
     <Head>
       <title>{title}</title>
       <meta charSet="utf-8" />
@@ -38,5 +38,11 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
     </footer>
   </div>
 )
+
+const styles={
+  layout:{
+    fontFamily:"san-serif",
+  }
+}
 
 export default Layout

@@ -4,6 +4,7 @@ import { commentDataStructure } from "../../utils/comments/comments";
 
 import SingleCommentUI from "./SingleCommentUI";
 import { comment } from "../../utils/comments/comments";
+import { reply } from "../../utils/comments/replies";
 import CommentBar from "./commentInput/CommentBar";
 
   const firstComment = {type:"image",url:"/images/dar.jpg",comment:new comment('Bari',"Jembe jipya linakuja Yanga","2hrs ago")};
@@ -23,17 +24,28 @@ import CommentBar from "./commentInput/CommentBar";
         <div key="list-of-comments">
            {
               comments.map(comment=>(
-                <SingleCommentUI url={comment.url} type={comment.type} showID={setID} comment={comment.comment}/>
+                <SingleCommentUI addTextReply={handleReplyAdded} url={comment.url} type={comment.type} showID={setID} comment={comment.comment}/>
             ))
             }
-            <CommentBar onPhotoChange={()=>{}} onTextChange={addTextComment}/>
+            <CommentBar type={'comment'} sendTextReplyReceived={null} onPhotoChange={addPhotoComment} onTextChange={addTextComment}/>
         </div>
       )
      }
 
-   const setID=(id:string)=>{
+   const setID=({id,cmd
+   })=>{
       curID = id;
-      deleteComment();
+      if(cmd==="delete")deleteComment();
+   }
+
+   const searchIdIndex=(id:string)=>{
+      for(let i=0; i<comments.length; i++){
+         if(comments[i].comment.id === id){
+             return i;
+         }
+      }
+      console.log('Error occured on deleting a comment')
+      return false;
    }
    const deleteComment=() =>{
     
@@ -42,21 +54,47 @@ import CommentBar from "./commentInput/CommentBar";
             comments.splice(i,1);
             let updated=[...comments];
             setComments(updated);
+            console.log("new reply was added")
             return true;
         }
      }
      console.log('Error occured on deleting a comment')
-     return false;
+   
+   }
+
+   const handleReplyAdded=({id,text})=>{
+   console.log(`id at top is ${id}`);
+      for(let i=0; i<comments.length; i++){
+         if(comments[i].comment.id === id){
+            
+            let rep =new reply("Mpamire",text,"1hr ago");
+            comments[i].comment.replies.push(rep)
+             console.log("reply addded succesfull")
+             let updated=[...comments];
+             setComments(updated);
+             return true;
+         }
+      }
+         console.log('the id was not founnd');  
+      
    }
 
 
-   const addTextComment=(event)=>{
-      let tex=event;
-     const newCom = new comment("James",tex,"2hrs ago");
+   const addTextComment=(text:string)=>{
+     const newCom ={type:"text", url:null, comment:new comment("James",text,"2hrs ago") };
       const updated = [...comments,newCom];
       setComments(updated)
+      console.log(text)
       console.log(comments);
    }
+
+   const addPhotoComment=(src:string)=>{
+      const newCom ={type:"image", url:src, comment:new comment("James","Hii picha hatari","2hrs ago") };
+       const updated = [...comments,newCom];
+       setComments(updated)
+       console.log(src)
+       console.log(comments);
+    }
 
      return (
         <div key={"comments-container"}>

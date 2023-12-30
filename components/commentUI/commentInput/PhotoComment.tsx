@@ -1,9 +1,10 @@
 
 
 import React, {ChangeEvent,useState,useRef} from "react";
+import {BiCamera} from "react-icons/bi"
 
 interface Props {
-    onPhotoChangeC:(event:ChangeEvent<HTMLInputElement>)=> void;
+    onPhotoChangeC:(src:string)=> void;
 }
 
 export default function PhotoComment(props:Props){
@@ -21,17 +22,17 @@ export default function PhotoComment(props:Props){
         const selectedPhoto = event.target.files?.[0];
         setPhoto(selectedPhoto);
         if(selectedPhoto){
-            props.onPhotoChangeC(event);
+            const blob= new Blob ([selectedPhoto], {type:selectedPhoto.type});
+            const src = URL.createObjectURL(blob);
+            props.onPhotoChangeC(src);
             console.log(selectedPhoto);
         }
     }
 
     return(
         <div>
-            <button onClick={handleImageInput}>Photo
-            </button>
-
-                 
+            <BiCamera onClick={handleImageInput} style={{fontSize:"2em"}}/>
+            
                 <input 
                  type="file" 
                  accept="image/*"
