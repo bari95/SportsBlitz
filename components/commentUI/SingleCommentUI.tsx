@@ -109,7 +109,7 @@ export default function SingleCommentUI(props:Props){
         
            <div style={styles.react}>
            <div style={styles.like}>
-            <span>{resource.likes} likes</span>
+            <span>{props.comment.likes} likes</span>
    
                <AiOutlineLike onClick={likeButton} style={styles.icons}/>
          
@@ -123,7 +123,7 @@ export default function SingleCommentUI(props:Props){
                <span>share</span>
                <RiShareForwardLine style={styles.icons} />
             </div>
-        </div>
+         </div>
         </div>
          )
       }
@@ -147,7 +147,6 @@ export default function SingleCommentUI(props:Props){
             <Image
                priority
                alt="dar es salaam"
-
                src={props.url}
                sizes="100vw" 
                width={300}
@@ -157,7 +156,7 @@ export default function SingleCommentUI(props:Props){
            </div>
         <div style={styles.react}>
          <div style={styles.like}>
-            <span>{resource.likes} likes</span>
+            <span>{props.comment.likes} likes</span>
    
                <AiOutlineLike onClick={likeButton} style={styles.icons}/>
          
@@ -177,7 +176,8 @@ export default function SingleCommentUI(props:Props){
    }
 
    const likeButton =()=>{
-        const updated={...resource,likes:resource.likes +=1};
+        const updated={...resource};
+        props.comment.likes +=1;
          setResource(updated);
    } 
    const commentButton=()=>{
@@ -194,8 +194,15 @@ export default function SingleCommentUI(props:Props){
       if(props.type==="text"){
          return (
 
-            <div style={styles.replies} className="replies">
-                <div key={props.comment.id} >
+         <div style={styles.replies} className="replies">
+             <div style={styles.commentsScreenHeader}>
+                 <span style={styles.icons} onClick={commentsScreenBack}>
+                   <IoIosArrowRoundBack style={styles.icons} />
+                 </span>
+            
+                 <span></span>
+               </div>
+                <div key={props.comment.id}>
             <div style={styles.text}>
              <div style={{display:"flex",flexDirection:"row",justifyContent:"space-between",paddingRight:22}}> 
              <span style={styles.name}> {props.comment.commentor} </span>
@@ -210,14 +217,14 @@ export default function SingleCommentUI(props:Props){
         
            <div style={styles.react}>
            <div style={styles.like}>
-            <span>{resource.likes} likes</span>
+            <span>{props.comment.likes} likes</span>
    
                <AiOutlineLike onClick={likeButton} style={styles.icons}/>
          
             </div>
             <div style={styles.like}>
                <span>
-                  {resource.replies.length} replies</span>
+                  {props.comment.replies.length} replies</span>
             <AiOutlineComment onClick={commentButton} style={styles.icons} />
             </div>
             <div style={styles.like}>
@@ -226,13 +233,9 @@ export default function SingleCommentUI(props:Props){
             </div>
         </div>
         </div>
-               <div style={styles.commentsScreenHeader}>
-                 <span style={styles.icons} onClick={commentsScreenBack}>
-                   <IoIosArrowRoundBack style={styles.icons} />
-                 </span>
-                 <span style={styles.icons}>replies</span>
-                 <span></span>
-               </div>
+               
+
+
 
                {
                   props.comment.replies.map((reply :commentDataStructure) =>(
@@ -263,8 +266,15 @@ export default function SingleCommentUI(props:Props){
          return (
 
 
-            <div >
-                <div key={props.comment.id} >
+            <div style={styles.replies}>
+                <div style={styles.commentsScreenHeader}>
+                 <span style={styles.icons} onClick={commentsScreenBack}>
+                   <IoIosArrowRoundBack style={styles.icons} />
+                 </span>
+      
+                 <span></span>
+               </div>
+                <div key={props.comment.id}>
             <div style={styles.text}>
              <div style={{display:"flex",flexDirection:"row",justifyContent:"space-between",paddingRight:22}}> 
              <span style={styles.name}> {props.comment.commentor} </span>
@@ -291,7 +301,7 @@ export default function SingleCommentUI(props:Props){
               
            <div style={styles.react}>
            <div style={styles.like}>
-            <span>{resource.likes} likes</span>
+            <span>{props.comment.likes} likes</span>
    
                <AiOutlineLike onClick={likeButton} style={styles.icons}/>
          
@@ -307,13 +317,7 @@ export default function SingleCommentUI(props:Props){
             </div>
         </div>
         </div>
-               <div style={styles.commentsScreenHeader}>
-                 <span style={styles.icons} onClick={commentsScreenBack}>
-                   <IoIosArrowRoundBack style={styles.icons} />
-                 </span>
-                 <span style={styles.icons}>replies</span>
-                 <span></span>
-               </div>
+              
 
                {
                   props.comment.replies.map((reply :commentDataStructure) =>(
@@ -446,7 +450,11 @@ const styles={
       display:"flex",
       justifyContent:"space-between",
       height:40,
+      width:80,
       backgroundColor:"rgba(0,0,0,.1)",
+      paddingBottom:10,
+      borderRadius:10,
+      marginBottom:5,
      },
      icons:{
       fontSize:"1.8em",
