@@ -1,8 +1,9 @@
 
 import { reply } from "./replies";
 import { v4 as uuidv4} from "uuid";
+import { sentTextObj } from "../../components/commentUI/commentInput/text/TextComment";
 
-export function comment(commentor:string,text:string,time:string){
+export function comment(commentor:string,text:string,time:string,url:null | string){
     this.text=text;
     this.time=time;
     this.id=uuidv4();
@@ -12,15 +13,19 @@ export function comment(commentor:string,text:string,time:string){
     this.deleteReply=deleteReply
     this.signature="comment";
     this.likes=0;
+
+    this.url=url;
 }
 
 export interface commentDataStructure {
     text:string,
     time:string,
     id:string,
+    type:string,
     commentor:string,
-    replies:commentDataStructure[],
-    likes:number
+    replies:sentTextObj[],
+    likes:number,
+    url:null | string,
 }
 
 function deleteReply(text:string){
@@ -37,8 +42,8 @@ function deleteReply(text:string){
     }
 
 
-export function addReplies(name:string,text:string,time:string){
-    let newRep=new reply(name,text,time)
+export function addReplies(name:string,text:string,time:string,url:string){
+    let newRep=new reply(name,text,time,url)
     this.replies.push(newRep);   
 }
 

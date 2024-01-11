@@ -1,11 +1,19 @@
 
 import React, {ChangeEvent,useState} from "react";
+import { comment,commentDataStructure } from "../../../../utils/comments/comments";
+import { reply } from "../../../../utils/comments/replies";
+
+export interface sentTextObj {
+    fileType:string,
+    data:commentDataStructure
+}
 
 interface Propes {
-    onTextChangeC:(txt:string)=> void,
-    sendTextReply:(text:string) => void,
-    type:string,
+    addReply:(d:sentTextObj)=> void,
+    addComment:(d:sentTextObj,f:()=>void) => void,
+    commentType:string,
 }
+
 export default function TextComment (props:Propes){
 
     const [text,setText] =useState('');
@@ -16,13 +24,30 @@ export default function TextComment (props:Propes){
     }
 
     const handleSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault();
-       if(props.type==="comment") props.onTextChangeC(text);
-       if(props.type==="reply") props.sendTextReply(text);
-        
+       e.preventDefault();
+       let names=[
+        "Baraka Mpenja",
+        "Juma Awesi",
+        "Choup Mouting",
+        "Mwakasege Yohana",
+        "Manase Marting"
+    ]
+
+    function randomName(){
+        let choice=Math.floor(Math.random() * names.length);
+        console.log(choice);
+        return names[choice]
+    }
+       if(props.commentType==="comment"){
+         let comm=new comment (randomName(),text,"1hrs ago",null)
+         props.addComment({fileType:"text",data:comm},()=>{});}
+      
+       if(props.commentType==="reply"){
+        let comm=new reply (randomName(),text,"3hrs ago",null)
+         props.addReply({fileType:"text",data:comm});
+     }
        setText("");
     }
-
 
     return (
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -34,7 +59,7 @@ export default function TextComment (props:Propes){
            borderWidth:2,
            paddingLeft:2,
            backgroundColor:"none",
-       }}  
+       }}                
         value={text} 
         rows={1}
         cols={30}
@@ -49,7 +74,5 @@ const styles={
         display:"flex",
         gap:14,
         paddingRight:2,
-        
-
     }
 } as { [key :string] : React.CSSProperties }

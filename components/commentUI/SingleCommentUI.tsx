@@ -1,73 +1,89 @@
 
+
 import { useState } from "react";
 import Image from "next/image";
 import {IoIosArrowRoundBack} from 'react-icons/io'
-import CommentBar from "./commentInput/CommentBar";
+import CommentBar from "./commentInput/commentbar/CommentBar";
 import {AiOutlineLike,AiOutlineComment} from "react-icons/ai";
 import {SlOptionsVertical} from "react-icons/sl";
 import {RiShareForwardLine} from "react-icons/ri";
-import DropdownMenu from "./DropDownMenu";
+import { getInitials } from "../../utils/helpers/helpers";
+
 import {FaRegWindowClose} from "react-icons/fa";
+import { objectPhotoData } from "./commentInput/photo/PhotoComment";
+
+import { sentTextObj } from "./commentInput/text/TextComment";
 
 
-import { comment,commentDataStructure } from "../../utils/comments/comments";
-import { reply } from "../../utils/comments/replies";
+import {commentDataStructure } from "../../utils/comments/comments";
+
 
 interface cmdForOptions{
    id:string,
    cmd:string
 }
-interface Props{
 
+export interface lastsentObj {
+   id:string,
+   reply:sentTextObj
+}
+interface Props{
    comment:commentDataStructure | null,
    showID:(obj:cmdForOptions)=>void,
-   type:string,
-   url:string | null,
-   addTextReply:({id,text})=>void
+   fileType:string,
+   sendReplyAdded:(d:lastsentObj)=>void
+   callback:()=>void
  }
 
 
+
 export default function SingleCommentUI(props:Props){
-   
+     
+    
 
      const [resource,setResource]=useState({
-                                       
-                                            replies:[new reply("Perfect Nkosi","good picture","20 minutes ago"),new reply("Juma Mgunda","Simba is better team","10s ago")],
-                                            likes:0,
-                                            showComments:false,
+                                            showReplies:false,
+                                            showCommentMenu:false,
+                                            menuPosition:{top:0, left:0},
+                                            replyPhotoForm:false
                                           });
-                                          const [showMenu, setShowMenu]= useState(false);
-                                          const [menuPosition,setMenuPosition] = useState({top:0, left:0});
+   
 
      const showMenuTrue=(event:React.MouseEvent<SVGElement>)=>{
-      const buttonPosition=event.currentTarget.getBoundingClientRect();
-      setMenuPosition({top:buttonPosition.bottom + window.scrollY,
-                       left:buttonPosition.left - window.scrollX - 80 });
-      
-      setShowMenu(true);
-
+     const buttonPosition=event.currentTarget.getBoundingClientRect();
+     let updated={ 
+      ...resource,
+      menuPosition:{
+                    top:buttonPosition.bottom + window.scrollY,            
+                    left:buttonPosition.left - window.scrollX - 80 },
+      showCommentMenu:true
+                  }
+      setResource(updated);
      }
+
+    
      
    const showMenuFalse =()=>{
-      setShowMenu(false)
+      let updated={...resource,showCommentMenu:true};
+      setResource(updated);
    }
 
-
-     const handleReceivedTextReply=(text:string)=>{
+   
+    const handleReplyAdded=(d:sentTextObj)=>{
       const id=props.comment.id;
-      props.addTextReply({id:id,text});
+      props.sendReplyAdded({id:id,reply:d});
       console.log('reply was received and sent at SingleCommentUI',`id is ${id}`)
      }
      const dropDownMenu=() =>{
                                             
                                      
-                                             return (
-                                                 <div>
+                            return (
+                                        <div>
                                                    
-                                                         <div style={{
+                                           <div style={{
                                                              position:"absolute",
-                                                             top:menuPosition.top-20,
-                                                             left:menuPosition.left-120,
+                                                             top:resource.menuPosition.top-20,
+                                                             left:resource.menuPosition.left-120,
                                                              zIndex:2,
                                                              padding:10,
                                                              width:"30%",
@@ -92,7 +108,11 @@ export default function SingleCommentUI(props:Props){
    const renderComment=()=>{
       const {comment}=props;
 
-      if(props.type=="text"){
+       if(resource.replyPhotoForm===true){
+         return null;
+       }
+
+      if(props.fileType=="text"){
          return (
         <div key={comment.id}>
             <div style={styles.text}>
@@ -127,7 +147,7 @@ export default function SingleCommentUI(props:Props){
         </div>
          )
       }
-      if(props.type == "image" && props.url !== null){
+      if(props.fileType === "image" && props.comment.url !== null){
          return (
             <div key={comment.id}>
             <div style={styles.text}>
@@ -141,26 +161,26 @@ export default function SingleCommentUI(props:Props){
                 <span style={styles.text}>{comment.text}</span>
                <span style={styles.time}> {comment.time}</span>
                </div>
-            </div>
+              </div>
 
             <div>
             <Image
                priority
                alt="dar es salaam"
-               src={props.url}
+               src={props.comment.url}
                sizes="100vw" 
                width={300}
                height={300}
                style={styles.image}
               />
            </div>
-        <div style={styles.react}>
-         <div style={styles.like}>
+          <div style={styles.react}>
+          <div style={styles.like}>
             <span>{props.comment.likes} likes</span>
    
                <AiOutlineLike onClick={likeButton} style={styles.icons}/>
          
-            </div>
+           </div>
             <div style={styles.like}>
                <span>{props.comment.replies.length} replies</span>
             <AiOutlineComment onClick={commentButton} style={styles.icons} />
@@ -178,20 +198,22 @@ export default function SingleCommentUI(props:Props){
    const likeButton =()=>{
         const updated={...resource};
         props.comment.likes +=1;
-         setResource(updated);
+        setResource(updated);
    } 
    const commentButton=()=>{
-      const updated={...resource,showComments:!resource.showComments}
+      const updated={...resource,showReplies:!resource.showReplies}
+      setResource(updated);
+   }
+ 
+   const commentsScreenBack=()=>{
+      const updated={...resource,showReplies:!resource.showReplies}
       setResource(updated);
    }
 
-   const commentsScreenBack=()=>{
-      const updated={...resource,showComments:!resource.showComments}
-      setResource(updated);
-   }
+
 
    const renderReplies=()=>{
-      if(props.type==="text"){
+      if(props.fileType==="text"){
          return (
 
          <div style={styles.replies} className="replies">
@@ -238,13 +260,15 @@ export default function SingleCommentUI(props:Props){
 
 
                {
-                  props.comment.replies.map((reply :commentDataStructure) =>(
+                  props.comment.replies.map((reply) =>{
                  
-                 <div key={reply.id + `${reply.commentor}`}>
+                if(reply.fileType ==="text"){
+                
+                return (<div key={reply.data.id + `${reply.data.commentor}`}>
                      <div style={styles.text}>
-                     <span> {reply.commentor} </span>
-                     <span> {reply.text} </span>
-                     <span> {reply.time}</span>
+                     <span style={styles.name}> {reply.data.commentor} </span>
+                     <span> {reply.data.text} </span>
+                     <span> {reply.data.time}</span>
                  </div>
                  
                  <div style={styles.react}>
@@ -255,14 +279,49 @@ export default function SingleCommentUI(props:Props){
                      
                  </div>
                  
-                 </div>
-                  ))
+                 </div>)
+      }
+               if(reply.fileType ==="image"){
+
+                  
+               return (  
+                  <div key={reply.data.id}>
+
+                   
+                   <div style={styles.text}>
+                   <span> {reply.data.commentor} </span>
+                     <span> {reply.data.text} </span>
+                     <span> {reply.data.time}</span>
+                     </div>
+                  <div>
+                  <Image
+                     priority
+                     alt="dar es salaam"
+      
+                     src={props.comment.url}
+                     sizes="100vw" 
+                     width={300}
+                     height={300}
+                     style={styles.imageReply}
+                    />
+                    </div>
+                    
+                    </div>
+                    )
+               }}
+      )
                }
-               <CommentBar sendTextReplyReceived={handleReceivedTextReply}  type={"reply"} onTextChange={()=>{}} onPhotoChange={()=>{}}/>
+               <CommentBar 
+                    callback={()=>{}}
+                    backCall={()=>{}}
+                  
+                    sendReplyAdded={handleReplyAdded} 
+                    sendCommentAdded={()=>{}} 
+                    commentType={"reply"} />
             </div>
          )
       }
-      if(props.type==="image"){
+      if(props.fileType==="image"){
          return (
 
 
@@ -291,7 +350,7 @@ export default function SingleCommentUI(props:Props){
                priority
                alt="dar es salaam"
 
-               src={props.url}
+               src={props.comment.url}
                sizes="100vw" 
                width={300}
                height={300}
@@ -320,35 +379,86 @@ export default function SingleCommentUI(props:Props){
               
 
                {
-                  props.comment.replies.map((reply :commentDataStructure) =>(
+                  
+                  props.comment.replies.map((reply) =>{
                  
-                 <div key={reply.id + `${reply.commentor}`}>
-                     <div style={styles.text}>
-                     <span> {reply.commentor} </span>
-                     <span> {reply.text} </span>
-                     <span> {reply.time}</span>
-                 </div>
-                 
-                 <div style={styles.react}>
-                     <button onClick={()=>{
-                        likeButton();
-                     }}>Like</button>
-                     <button>reply</button>
+                     if(reply.fileType ==="text"){
                      
-                 </div>
-                 
-                 </div>
-                  ))
+                     return (<div key={reply.data.id + `${reply.data.commentor}`}>
+                          <div style={styles.text}>
+                          <span style={styles.name}> {reply.data.commentor} </span>
+                          <span> {reply.data.text} </span>
+                          <span> {reply.data.time}</span>
+                      </div>
+                      
+                      <div style={styles.react}>
+                          <button onClick={()=>{
+                             likeButton();
+                          }}>Like</button>
+                          <button>reply</button>
+                          
+                      </div>
+                      
+                      </div>)
+           }
+                    if(reply.fileType ==="image"){
+     
+                       
+                    return (  
+                       <div key={reply.data.id}>
+     
+                        
+                        <div style={styles.text}>
+                        <span style={styles.name}> {reply.data.commentor} </span>
+                          <span> {reply.data.text} </span>
+                          <span> {reply.data.time}</span>
+                          </div>
+                       <div>
+                       <Image
+                          priority
+                          alt="dar es salaam"
+           
+                          src={reply.data.url}
+                          sizes="100vw" 
+                          width={300}
+                          height={300}
+                          style={styles.imageReply}
+                         />
+                         </div>
+                         <div style={styles.react}>
+                          <button onClick={()=>{
+                             likeButton();
+                          }}>Like</button>
+                          <button>reply</button>
+                          
+                      </div>
+                         
+                         </div>
+                         )
+                    }}
+           )
                }
-               <CommentBar type={"reply"} sendTextReplyReceived={handleReceivedTextReply} onTextChange={()=>{}} onPhotoChange={()=>{}}/>
+               <CommentBar 
+                   callback={()=>{}}
+                   backCall={()=>{}}
+            
+                   commentType={"reply"}  
+                   sendReplyAdded={handleReplyAdded} 
+                   sendCommentAdded={()=>{}} 
+               
+                    />
             </div>
          )
       }
    }
 
-   const commentsScreen=()=>{
-      if(resource.showComments === true){
+   const replyScreen=()=>{
+      if(resource.showReplies === true){
          console.log("commentScreen");
+         if(resource.replyPhotoForm === true){
+         
+            return null;
+         }
            return (
             <div style={styles.commentsScreen}>
               
@@ -361,20 +471,24 @@ export default function SingleCommentUI(props:Props){
            )
       }
    }
-   
+    
+
+
    const sendID =(cmd:string)=>{
    let id=props.comment.id;
       props.showID({id:id,cmd:cmd});
       console.log("id sent",id);
    }
 
+   
+
  return (
     
     <div style={styles.commentContainer} key={props.comment.id}>
         {
-          resource.showComments ? commentsScreen():renderComment()
+          resource.showReplies ? replyScreen():renderComment()
         }
-      {showMenu && (
+      {resource.showCommentMenu && (
           dropDownMenu()
       )}
     </div>
@@ -433,6 +547,12 @@ const styles={
       height:'auto',
       borderRadius:30
      },
+     imageReply: {
+      width:'60%',
+      alignSelf:"center",
+      height:'auto',
+      borderRadius:30
+     },
      replies:{
       position:"fixed",
       zIndex:3,
@@ -441,7 +561,7 @@ const styles={
       bottom:0,
       right:0,
       paddingTop:10,
-      overflow:"scroll",
+      overflow:"auto",
       scrollbarWidth:"none",
       msOverflowStyle:"none",
       backgroundColor:"white"

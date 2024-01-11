@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode,useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import CommentsContainer from './commentUI/CommentContainer'
@@ -8,7 +8,12 @@ type Props = {
   title?: string
 }
   
-const Layout = ({ children, title = 'This is the default title' }: Props) => (
+const Layout = ({ children, title = 'This is the default title' }: Props) =>{
+
+    const [showComments,setComments]=useState(true);
+    const [insertPhotoComment,setPhotoComment]=useState(false)
+
+  return (
   <div style={styles.layout}>
     <Head>
       <title>{title}</title>
@@ -25,7 +30,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
     {children} {
       <div>
       
-    <CommentsContainer />
+   {showComments ? <CommentsContainer /> :null }
      
       
       </div>
@@ -38,6 +43,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
     </footer>
   </div>
 )
+}
 
 const styles={
   layout:{
